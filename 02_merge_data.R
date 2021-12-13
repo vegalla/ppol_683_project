@@ -1,6 +1,6 @@
 ## Set up ----------------------------------------------------------------------
-library(sf)
 library(tidyverse)
+library(sf)
 library(rmapshaper)
 
 ## Load data -------------------------------------------------------------------
@@ -77,7 +77,13 @@ va_label <-
 
 dc_features <-
   read_csv(
-    'project/_data/processed/dc_features.csv',
+    'data/processed/dc_features.csv',
+    col_types =  cols(
+      GEOID = col_character()))
+
+va_features <-
+  read_csv(
+    'data/processed/va_features.csv',
     col_types =  cols(
       GEOID = col_character()))
 
@@ -102,6 +108,9 @@ dc <-
 va <-
   va_shp %>%
   left_join(
+    va_features,
+    by = 'GEOID') %>%
+  left_join(
     va_label %>%
       select(GEOID, gentrified),
     by = 'GEOID') %>%
@@ -109,21 +118,14 @@ va <-
 
 
 ## Export data -----------------------------------------------------------------
+
 export = FALSE
 
 if (exportC == TRUE){
+  
   dc %>%
-    st_write('project/_data/processed/dc_processed.shp')
+    st_write('data/processed/dc_processed.shp')
+  
+  va %>%
+    st_write('data/processed/va_processed.shp')
 } 
-
-
-## KerasR
-# https://cran.r-project.org/web/packages/kerasR/vignettes/introduction.html
-
-## Time Series Forecasting
-# https://machinelearningmastery.com/how-to-develop-convolutional-neural-network-models-for-time-series-forecasting/
-# Multi-input Series
-# Classification, not forecasting
-# Important steps, converting geoid into an array
-# steps will be each year
-# column will be features, rows will be steps
