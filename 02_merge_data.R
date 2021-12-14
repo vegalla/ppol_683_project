@@ -51,6 +51,8 @@ va_shp <-
 
 ## Load gentrification data from NCRC interactive map --------------------------
 
+# I could use purrr::map here, but decide not to.
+
 # DC
 
 dc_label <-
@@ -97,11 +99,11 @@ dc <-
       dc_features,
       by = 'GEOID') %>%
     left_join(
-      dc_label %>%
-        filter(year_gentrified == 2017) %>%
-        select(GEOID, gentrified),
+      dc_label,
       by = 'GEOID') %>%
-  mutate(gentrified = replace_na(gentrified, 0))
+  mutate(gentrified = replace_na(gentrified, 0),
+         gentrified = replace(gentrified, year_gentrified == 2017, 2)) %>%
+  select(-year_gentrified)
 
 # VA
 
@@ -111,17 +113,18 @@ va <-
     va_features,
     by = 'GEOID') %>%
   left_join(
-    va_label %>%
-      select(GEOID, gentrified),
+    va_label,
     by = 'GEOID') %>%
-  mutate(gentrified = replace_na(gentrified, 0))
+  mutate(gentrified = replace_na(gentrified, 0),
+         gentrified = replace(gentrified, year_gentrified == 2017, 2)) %>%
+  select(-year_gentrified)
 
 
 ## Export data -----------------------------------------------------------------
 
 export = FALSE
 
-if (exportC == TRUE){
+if (export == TRUE){
   
   dc %>%
     st_write('data/processed/dc_processed.shp')
