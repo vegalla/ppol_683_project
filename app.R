@@ -171,20 +171,15 @@ ui <-
           tabName = 'charts',
           h2('Trend of Features per Year'),
           
-          # List DC Census Tracts
+          # List Census Tracts
           
           selectInput(
-            inputId = 'dc_geoid_select',
-            label = 'DC GEOID',
-            choices = c(sort(dc$GEOID))),
+              inputId = 'geoid_select',
+              label = NULL,
+              choices = c('init')),
           
-          # List VA Census Tracts
-    
-          selectInput(
-            inputId = 'va_geoid_select',
-            label = 'VA GEOID',
-            choices = c(sort(va$GEOID))),
-          plotOutput(outputId = 'plot_trend')),
+          plotOutput(outputId = 'plot_trend')
+        ),
         
         tabItem(
           tabName = 'tables02',
@@ -197,10 +192,29 @@ ui <-
 # server ------------------------------------------------------------------
 
 server <- 
-  function(input, output) { 
+  function(input, output, session) { 
     
-    # Data subsetting and summarizing -------------------------------------
+    observeEvent(input$city, {
+      if(input$city == 'dc'){
+        updateSelectInput(
+          session, 
+          inputId = 'geoid_select', 
+          label = 'DC GEOID', 
+          choices = c(sort(dc$GEOID)))
+      }
+      if(input$city == 'norfolk'){
+        updateSelectInput(
+          session, 
+          inputId = 'geoid_select', 
+          label = 'VA GEOID', 
+          choices = c(sort(va$GEOID)))
+      }
+    })
     
+    observeEvent(input$go,{
+      print(input$geoid_select)
+      print(input$city)
+    })
     # City selection
     
     city <-
@@ -297,24 +311,12 @@ server <-
     
     # Data processed for Trend Lines
     
-    # Use GEOID depending on city input
-    
-    geoid <-
-      reactive({
-        if (input$city == 'dc') {
-          input$dc_geoid_select
-        }
-        else {
-          input$va_geoid_select
-        }
-      })
-    
     # Melt features
     
     trend <-
       reactive({
         city_tibble() %>%
-        filter(GEOID == geoid()) %>%
+        filter(GEOID == input$geoid_select) %>%
         pivot_longer(
           cols = mdn_nc_:pct_n__,
           names_to = 'feature') %>%
