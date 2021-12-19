@@ -128,15 +128,9 @@ ui <-
           tabName = 'home',
           h2('Overview'),
           p("This application is intended to assist with the feature exploration
-             of the following analysis: Time Series Classification with Neural
-             Networks - Predicting Gentrification of Norfolk, Virginia."),
-          br(),
-          p("The analysis implements a machine learning model using Washington,
-             DC as the primary training data set and Norfolk, VA as the testing
-             data set. In this application, users may review features as a 
-             map during a given year, a summary of features across census tracts
-             trend lines across the analysis time frame (2010 - 2017), or view 
-             all data of a given city."),
+             of the following analysis: Causal Explanation of Gentrification in
+             Washington, DC and Norfolk, VA. The analysis implements a two-way 
+             fixed effects linear model on both cities individually. "),
           br(),
           p("Featured below are two maps of the cities. The highlighted 
              census tracts (neighborhoods) have been gentrified, according to 
@@ -154,8 +148,8 @@ ui <-
             width = '50%'),
           p("By comparison, the city of Norfolk, VA doesn't seem to gentrify to
              the same degree. However, this is only in accordance with NCRC's
-             definition. This analysis explores alternative methods for 
-             determining gentrification in the city.")),
+             definition. Personal, anecdotal experience considers this city 
+             as continuing to gentrify regardless of the NCRC labels.")),
         
         tabItem(
           tabName = 'maps',
@@ -365,7 +359,8 @@ server <-
         ggplot() + 
           geom_line(aes(
             x = year, 
-            y = value)) +
+            y = value),
+            size = 2) +
           facet_wrap(
             ~ feature,
             labeller = facet_labels,
@@ -383,6 +378,9 @@ server <-
               hjust = 1, 
               vjust = 0.5))
       )
+    
+    # I would have liked to color each line based on upward/downward trend,
+    # but I am unsure of how I would implement this according to inputs.
     
     # Data Table
     
